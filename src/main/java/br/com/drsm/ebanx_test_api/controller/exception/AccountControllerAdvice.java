@@ -15,6 +15,12 @@ public class AccountControllerAdvice {
     @ExceptionHandler(AccountNotFoundException.class)
     public ResponseEntity<?> handleUserNotFoundException(AccountNotFoundException ex, WebRequest request) {
         log.error(ex.getMessage(), ex);
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(0, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        log.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(0, HttpStatus.BAD_REQUEST);
     }
 }

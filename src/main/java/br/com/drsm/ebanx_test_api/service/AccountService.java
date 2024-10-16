@@ -4,6 +4,7 @@ import br.com.drsm.ebanx_test_api.dto.TransactionRequestDTO;
 import br.com.drsm.ebanx_test_api.dto.TransactionResponseDTO;
 import br.com.drsm.ebanx_test_api.model.Account;
 import br.com.drsm.ebanx_test_api.service.exception.AccountNotFoundException;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.util.HashMap;
 
 @Slf4j
 @Service
+@Getter
 public class AccountService {
 
     private final Map<String, Account> accountsMap = new HashMap<>();

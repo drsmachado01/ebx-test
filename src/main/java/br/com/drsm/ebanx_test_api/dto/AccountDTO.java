@@ -1,12 +1,12 @@
 package br.com.drsm.ebanx_test_api.dto;
 
 import br.com.drsm.ebanx_test_api.model.Account;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 public class AccountDTO {
