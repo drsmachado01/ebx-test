@@ -22,7 +22,6 @@ public class AccountService {
         log.info("reset called");
         log.info("accountsMap size: {}", accountsMap.size());
         accountsMap.clear();
-        log.info("accountsMap size: {}", accountsMap.size());
         log.info("reset successful");
     }
 
@@ -47,40 +46,25 @@ public class AccountService {
     }
 
     public TransactionResponseDTO processTransfer(TransactionRequestDTO request) {
+        var origin = processOrigin(request);
 
-        Account origin = null, destination = null;
+        var destination = processDestination(request);
 
-        origin = getAccount(request.getOrigin());
-        if(null == origin) {
-            log.info("Account not found: {}", request.getOrigin());
-            throw new AccountNotFoundException(request.getOrigin());
-        }
-        log.info("origin: {}", origin);
+        return executeTransfer(request.getAmount(), origin, destination);
+    }
 
-        destination = getAccount(request.getDestination());
-        if(null == destination) {
-            log.info("Creating destination account");
-            destination = Account.builder().id(request.getDestination()).balance(0.0).build();
-        }
-
-
-        origin.setBalance(origin.getBalance() - request.getAmount());
+    private static TransactionResponseDTO executeTransfer(Double amount, Account origin, Account destination) {
+        origin.setBalance(origin.getBalance() - amount);
         log.info("origin balance: {}", origin.getBalance());
-        destination.setBalance(destination.getBalance() + request.getAmount());
+        destination.setBalance(destination.getBalance() + amount);
         log.info("destination balance: {}", destination.getBalance());
 
-        return TransactionResponseDTO.fillReturn(origin, destination, request.getType());
+        return TransactionResponseDTO.fillReturn(origin, destination, "transfer");
     }
 
     public TransactionResponseDTO processDeposit(TransactionRequestDTO request) {
-        String id = request.getDestination();
         double amount = request.getAmount();
-
-        Account destination = getAccount(id);
-        if (null == destination || null == destination.getId()) {
-            log.info("Creating destination account");
-            destination = Account.builder().id(id).balance(0.0).build();
-        }
+        var destination = processDestination(request);
 
         destination.setBalance(destination.getBalance() + amount);
         saveAccount(destination);
@@ -89,17 +73,32 @@ public class AccountService {
     }
 
     public TransactionResponseDTO processWithdraw(TransactionRequestDTO request) {
-        String id = request.getOrigin();
         double amount = request.getAmount();
-        Account origin = getAccount(id);
-        if (null == origin) {
-            log.info("Account not found: {}", id);
-            throw new AccountNotFoundException(id);
-        }
+        Account origin = processOrigin(request);
+
         origin.setBalance(origin.getBalance() - amount);
         saveAccount(origin);
         log.info("origin balance: {}", origin.getBalance());
         return TransactionResponseDTO.fillReturn(origin, null, request.getType());
+    }
+
+    private Account processOrigin(TransactionRequestDTO request) {
+        Account origin = getAccount(request.getOrigin());
+        if(null == origin) {
+            log.info("Account not found: {}", request.getOrigin());
+            throw new AccountNotFoundException(request.getOrigin());
+        }
+        log.info("origin: {}", origin);
+        return origin;
+    }
+
+    private Account processDestination(TransactionRequestDTO request) {
+        Account destination = getAccount(request.getDestination());
+        if(null == destination) {
+            log.info("Creating destination account");
+            destination = Account.builder().id(request.getDestination()).balance(0.0).build();
+        }
+        return destination;
     }
 
 
